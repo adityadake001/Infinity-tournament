@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinity Tournaments</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: white;
+            min-height: 100vh;
+            background-attachment: fixed;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Welcome Screen */
+        .welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+        }
+        
+        .welcome-content {
+            text-align: center;
+            animation: fadeIn 1.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .logo {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #ff8a00, #da1b60);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(255, 138, 0, 0.5);
+        }
+        
+        .enter-btn {
+            background: linear-gradient(to right, #ff8a00, #da1b60);
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            border-radius: 30px;
+            color: white;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .enter-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Main Content */
+        .main-content {
+            display: none;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+        }
+        
+        .site-title {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #ff8a00, #da1b60);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .option-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+        
+        .option-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .option-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .option-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        
+        /* Tournament Details Page */
+        .details-page {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .details-content {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(30, 30, 60, 0.8);
+            border-radius: 15px;
+            padding: 30px;
+            position: relative;
+        }
+        
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ff8a00;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .social-options {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .social-btn {
+            display: flex;
+            align-items: center;
+            background: linear-gradient(45deg, #405DE6, #5851DB, #833AB4, #C13584, #E1306C, #FD1D1D);
+            padding: 10px 20px;
+            border-radius: 30px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .telegram-btn {
+            background: linear-gradient(45deg, #0088cc, #00aced);
+        }
+        
+        .rules-btn {
+            background: linear-gradient(45deg, #ff8a00, #da1b60);
+            padding: 10px 20px;
+            border-radius: 30px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        
+        .rules-content {
+            display: none;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        /* Tournament Tabs */
+        .tournament-tabs {
+            display: flex;
+            margin: 20px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .tournament-tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .tournament-tab.active {
+            background: #ff8a00;
+            font-weight: bold;
+        }
+        
+        .tournament-content {
+            display: none;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        
+        .tournament-content.active {
+            display: block;
+        }
+        
+        .detail-item {
+            display: flex;
+            margin: 15px 0;
+            align-items: center;
+        }
+        
+        .detail-icon {
+            font-size: 1.5rem;
+            margin-right: 15px;
+            width: 30px;
+            text-align: center;
+        }
+        
+        .detail-text {
+            flex: 1;
+        }
+        
+        .prize-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .prize-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .prize-amount {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff8a00;
+            margin-top: 5px;
+        }
+        
+        /* Free Fire Bio Page */
+        .bio-page {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .bio-content {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(30, 30, 60, 0.8);
+            border-radius: 15px;
+            padding: 30px;
+            position: relative;
+        }
+        
+        .bio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .bio-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .bio-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 138, 0, 0.2);
+        }
+        
+        .bio-name {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #ff8a00;
+        }
+        
+        /* Tips Page */
+        .tips-page {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .tips-content {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(30, 30, 60, 0.8);
+            border-radius: 15px;
+            padding: 30px;
+            position: relative;
+        }
+        
+        .tip-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        
+        .tip-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #ff8a00;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .logo {
+                font-size: 3rem;
+            }
+            
+            .social-options {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .prize-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tournament-tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Welcome Screen -->
+    <div class="welcome-screen" id="welcomeScreen">
+        <div class="welcome-content">
+            <div class="logo">INFINITY TOURNAMENTS</div>
+            <h2>Welcome to Infinity Tournament</h2>
+            <p>Where champions are born and legends are made</p>
+            <button class="enter-btn" id="enterBtn">ENTER TOURNAMENT</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <div class="container">
+            <header>
+                <h1 class="site-title">Infinity Tournaments</h1>
+                <p>Compete. Win. Conquer.</p>
+            </header>
+
+            <div class="options-grid">
+                <div class="option-card" id="tournamentDetails">
+                    <div class="option-icon">🏆</div>
+                    <h2 class="option-title">Tournament Details</h2>
+                    <p>All information about the tournament rules, schedule and prizes</p>
+                </div>
+
+                <div class="option-card" id="freeFireNames">
+                    <div class="option-icon">🎮</div>
+                    <h2 class="option-title">Free Fire Names & Bio</h2>
+                    <p>Copy cool Free Fire names and bios for your profile</p>
+                </div>
+
+                <div class="option-card" id="freeFireTips">
+                    <div class="option-icon">🔮</div>
+                    <h2 class="option-title">Free Fire Tips</h2>
+                    <p>Pro tips to improve your Free Fire gameplay</p>
+                </div>
+
+                <div class="option-card">
+                    <div class="option-icon">🌟</div>
+                    <h2 class="option-title">Coming Soon</h2>
+                    <p>Stay tuned for more tournament action!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tournament Details Page -->
+    <div class="details-page" id="detailsPage">
+        <div class="details-content">
+            <button class="back-btn" id="backBtn">Back</button>
+            
+            <h2>Tournament Details</h2>
+            
+            <div class="tournament-tabs">
+                <div class="tournament-tab active" data-tab="live">Live Tournament</div>
+                <div class="tournament-tab" data-tab="next">Next Tournament</div>
+            </div>
+            
+            <div class="tournament-content active" id="live-tournament">
+                <h3>No Live Tournaments Currently</h3>
+                <p>Check back later for live tournament updates.</p>
+            </div>
+            
+            <div class="tournament-content" id="next-tournament">
+                <h3>Next Tournament: Battle Royale Squad</h3>
+                
+                <div class="detail-item">
+                    <div class="detail-icon">🗓️</div>
+                    <div class="detail-text">Date: 24/09/2025</div>
+                </div>
+                
+                <div class="detail-item">
+                    <div class="detail-icon">🕧</div>
+                    <div class="detail-text">Time: 7:00 PM to 9:00 PM</div>
+                </div>
+                
+                <div class="detail-item">
+                    <div class="detail-icon">🎮</div>
+                    <div class="detail-text">Game Mode: Battle Royale (Squad)</div>
+                </div>
+                
+                <div class="detail-item">
+                    <div class="detail-icon">👥</div>
+                    <div class="detail-text">Players: 48 Participants</div>
+                </div>
+                
+                <div class="detail-item">
+                    <div class="detail-icon">💰</div>
+                    <div class="detail-text">Entry Fee: ₹20 Only</div>
+                </div>
+                
+                <div class="detail-item">
+                    <div class="detail-icon">📝</div>
+                    <div class="detail-text">Registration: Instagram Message</div>
+                </div>
+                
+                <div class="detail-item">
+                    <div class="detail-icon">📅</div>
+                    <div class="detail-text">Registration Date: 20-23/09/2025</div>
+                </div>
+                
+                <h3>Winning Prizes</h3>
+                <div class="prize-grid">
+                    <div class="prize-item">
+                        <div>First Prize</div>
+                        <div class="prize-amount">₹549</div>
+                    </div>
+                    <div class="prize-item">
+                        <div>Second Prize</div>
+                        <div class="prize-amount">₹89</div>
+                    </div>
+                    <div class="prize-item">
+                        <div>Third Prize</div>
+                        <div class="prize-amount">₹59</div>
+                    </div>
+                    <div class="prize-item">
+                        <div>Fourth Prize</div>
+                        <div class="prize-amount">₹40</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="social-options">
+                <a href="https://www.instagram.com/infinity__tournaments?igsh=Y3NhY2Zqb3c1bXRx" class="social-btn" target="_blank">
+                    Instagram
+                </a>
+                <a href="https://t.me/Infinity_Tournaments01" class="social-btn telegram-btn" target="_blank">
+                    Telegram
+                </a>
+            </div>
+            
+            <button class="rules-btn" id="rulesBtn">Rules & Warnings</button>
+            
+            <div class="rules-content" id="rulesContent">
+                <h3>Tournament Rules:</h3>
+                <ul>
+                    <li>Dimitri and Sonia characters are not allowed</li>
+                    <li>Only headshots count - more than 4 kills with body shots will disqualify you from winning prize</li>
+                    <li>Registration must include mobile number, email, and game UID sent via Instagram message</li>
+                    <li>After winning, prize will be sent to the registered mobile number</li>
+                    <li>Mobile number and payment details cannot be changed after registration</li>
+                    <li>All players must follow the rules strictly</li>
+                    <li>Microphone must be enabled during the game for communication</li>
+                    <li>The 4th position player must have at least 5 kills to be eligible for winning prize</li>
+                    <li>Screen recording of the entire match must be submitted as proof</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Free Fire Bio Page -->
+    <div class="bio-page" id="bioPage">
+        <div class="bio-content">
+            <button class="back-btn" id="backBtnBio">Back</button>
+            
+            <h2>Free Fire Names & Bios</h2>
+            <p>Click on any name to copy it to your clipboard</p>
+            
+            <div class="bio-grid">
+                <div class="bio-card" data-name="ÐARK★KNIGHT" data-bio="★ Headshot Master ★ Don't underestimate me!">
+                    <div class="bio-name">ÐARK★KNIGHT</div>
+                    <div>★ Headshot Master ★ Don't underestimate me!</div>
+                </div>
+                
+                <div class="bio-card" data-name="☆PRO☆GAMER☆" data-bio="☆ Pro Player ☆ Looking for a squad!">
+                    <div class="bio-name">☆PRO☆GAMER☆</div>
+                    <div>☆ Pro Player ☆ Looking for a squad!</div>
+                </div> 
+                
+                <div class="bio-card" data-name="⚡THUNDER⚡" data-bio="⚡ Thunder Squad ⚡ Champion of season 10">
+                    <div class="bio-name">⚡THUNDER⚡</div>
+                    <div>⚡ Thunder Squad ⚡ Champion of season 10</div>
+                </div>
+                
+                <div class="bio-card" data-name="★ACE★SHOOTER★" data-bio="★ I live to win ★ Add me for fun matches">
+                    <div class="bio-name">★ACE★SHOOTER★</div>
+                    <div>★ I live to win ★ Add me for fun matches</div>
+                </div>
+                
+                <div class="bio-card" data-name="🔥INFERNO🔥" data-bio="🔥 Born to win 🔥 Fear the fire within">
+                    <div class="bio-name">🔥INFERNO🔥</div>
+                    <div>🔥 Born to win 🔥 Fear the fire within</div>
+                </div>
+                
+                <div class="bio-card" data-name="♛GOD♛OF♛WAR" data-bio="♛ One man army ♛ Conqueror rank">
+                    <div class="bio-name">♛GOD♛OF♛WAR</div>
+                    <div>♛ One man army ♛ Conqueror rank</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Free Fire Tips Page -->
+    <div class="tips-page" id="tipsPage">
+        <div class="tips-content">
+            <button class="back-btn" id="backBtnTips">Back</button>
+            
+            <h2>Free Fire Pro Tips</h2>
+            
+            <div class="tip-card">
+                <div class="tip-title">Aim Training</div>
+                <p>Practice headshots in training mode daily. Adjust sensitivity settings to find what works best for you.</p>
+            </div>
+            
+            <div class="tip-card">
+                <div class="tip-title">Map Knowledge</div>
+                <p>Learn popular landing spots, loot locations, and strategic positions on all maps.</p>
+            </div>
+            
+            <div class="tip-card">
+                <div class="tip-title">Squad Communication</div>
+                <p>Coordinate with your team, share resources, and develop strategies before matches.</p>
+            </div>
+            
+            <div class="tip-card">
+                <div class="tip-title">Loot Management</div>
+                <p>Prioritize weapons, armor, and medkits. Don't overcrowd your inventory with unnecessary items.</p>
+            </div>
+            
+            <div class="tip-card">
+                <div class="tip-title">Zone Awareness</div>
+                <p>Always keep an eye on the shrinking zone and plan your movement accordingly.</p>
+            </div>
+            
+            <div class="tip-card">
+                <div class="tip-title">Character Combinations</div>
+                <p>Choose character abilities that complement each other in your squad for maximum effectiveness.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        const mainContent = document.getElementById('mainContent');
+        const enterBtn = document.getElementById('enterBtn');
+        const tournamentDetails = document.getElementById('tournamentDetails');
+        const detailsPage = document.getElementById('detailsPage');
+        const backBtn = document.getElementById('backBtn');
+        const rulesBtn = document.getElementById('rulesBtn');
+        const rulesContent = document.getElementById('rulesContent');
+        const freeFireNames = document.getElementById('freeFireNames');
+        const bioPage = document.getElementById('bioPage');
+        const backBtnBio = document.getElementById('backBtnBio');
+        const freeFireTips = document.getElementById('freeFireTips');
+        const tipsPage = document.getElementById('tipsPage');
+        const backBtnTips = document.getElementById('backBtnTips');
+        const tournamentTabs = document.querySelectorAll('.tournament-tab');
+        const bioCards = document.querySelectorAll('.bio-card');
+
+        // Enter the website
+        enterBtn.addEventListener('click', () => {
+            welcomeScreen.style.opacity = '0';
+            setTimeout(() => {
+                welcomeScreen.style.display = 'none';
+                mainContent.style.display = 'block';
+            }, 500);
+        });
+
+        // Open tournament details
+        tournamentDetails.addEventListener('click', () => {
+            mainContent.style.display = 'none';
+            detailsPage.style.display = 'block';
+        });
+
+        // Go back from details page
+        backBtn.addEventListener('click', () => {
+            detailsPage.style.display = 'none';
+            mainContent.style.display = 'block';
+        });
+
+        // Toggle rules content
+        rulesBtn.addEventListener('click', () => {
+            if (rulesContent.style.display === 'block') {
+                rulesContent.style.display = 'none';
+            } else {
+                rulesContent.style.display = 'block';
+            }
+        });
+
+        // Tournament tabs functionality
+        tournamentTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs
+                tournamentTabs.forEach(t => t.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                tab.classList.add('active');
+                
+                // Hide all content
+                document.querySelectorAll('.tournament-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // Show corresponding content
+                const tabId = tab.getAttribute('data-tab');
+                document.getElementById(`${tabId}-tournament`).classList.add('active');
+            });
+        });
+
+        // Open Free Fire Names & Bio page
+        freeFireNames.addEventListener('click', () => {
+            mainContent.style.display = 'none';
+            bioPage.style.display = 'block';
+        });
+
+        // Go back from bio page
+        backBtnBio.addEventListener('click', () => {
+            bioPage.style.display = 'none';
+            mainContent.style.display = 'block';
+        });
+
+        // Copy bio to clipboard
+        bioCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const name = card.getAttribute('data-name');
+                const bio = card.getAttribute('data-bio');
+                const textToCopy = `${name}\n${bio}`;
+                
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    alert(`Copied to clipboard:\n${textToCopy}`);
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                    alert('Failed to copy to clipboard. Please try again.');
+                });
+            });
+        });
+
+        // Open Free Fire Tips page
+        freeFireTips.addEventListener('click', () => {
+            mainContent.style.display = 'none';
+            tipsPage.style.display = 'block';
+        });
+
+        // Go back from tips page
+        backBtnTips.addEventListener('click', () => {
+            tipsPage.style.display = 'none';
+            mainContent.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
